@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package synthesize.v1;
+
+message SynthesizeRequest {
+    string message = 1;
+}
+
+message SynthesizeResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+service SpeechService {
+    rpc Synthesize(SynthesizeRequest) returns (SynthesizeResponse);
+}

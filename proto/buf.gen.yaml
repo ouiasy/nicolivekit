@@ -1,0 +1,14 @@
+version: v2
+plugins:
+  - remote: buf.build/connectrpc/swift
+    out: ../ios/ios/gen
+    opt:
+      - GenerateAsyncMethods=true
+      - GenerateCallbackMethods=true
+      - Visibility=Public
+  - remote: buf.build/apple/swift
+    out: ../ios/ios/gen
+    opt: Visibility=Public
+  - remote: buf.build/grpc/swift-protobuf
+    out: ../ios/ios/gen
+    opt: Visibility=Public
