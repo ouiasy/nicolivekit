@@ -1,5 +1,6 @@
 version: v2
 plugins:
+  # Swift (Connect)
   - remote: buf.build/connectrpc/swift
     out: ../ios/ios/gen
     opt:
@@ -9,6 +10,24 @@ plugins:
   - remote: buf.build/apple/swift
     out: ../ios/ios/gen
     opt: Visibility=Public
-  - remote: buf.build/grpc/swift-protobuf
-    out: ../ios/ios/gen
-    opt: Visibility=Public
+#  - remote: buf.build/grpc/swift-protobuf
+#    out: ../ios/ios/gen
+#    opt: Visibility=Public
+
+  # Go (Connect)
+  - local: protoc-gen-go
+    out: ../server/gen
+    opt: paths=source_relative
+  - local: protoc-gen-connect-go
+    out: ../server/gen
+    opt:
+      - paths=source_relative
+      - simple
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/ouiasy/nicolivekit/server/gen
+  disable:
+    - file_option: go_package
+      module: buf.build/bufbuild/protovalidate

@@ -15,7 +15,7 @@ struct ConnectionView: View {
                 .frame(width: 250, height: 250)
 
             Spacer()
-            TextField("ip addr", text: $host)
+            TextField("host", text: $host)
                 .padding(12)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))

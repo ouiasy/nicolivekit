@@ -33,14 +33,15 @@ struct ChatView: View {
                     .textFieldStyle(.roundedBorder)
 
                 Button("send") {
-                    Task {
-                        if let resp = await clientState.send(text: text) {
+                    let sendingText = text
+                    text = ""
+                    Task { @MainActor in
+                        if let resp = await clientState.send(text: sendingText) {
                             messages.append(resp)
                         } else {
                             messages.append("failed")
                         }
                     }
-                    text = ""
                 }
             }
             .padding()
