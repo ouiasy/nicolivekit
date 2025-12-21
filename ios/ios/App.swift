@@ -1,11 +1,11 @@
 import SwiftUI
 
 @main
-struct iosApp: App {
+struct AppRoot: App {
     @State private var clientState = ClientState()
     var body: some Scene {
         WindowGroup {
-            RootView()
+            ContentView()
                 .environment(clientState)
         }
     }

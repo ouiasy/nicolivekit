@@ -277,6 +277,8 @@
 				DEVELOPMENT_TEAM = 2D8X63JYVX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "音声が録音されます。音声記録は文字起こし後に破棄されます。";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "アプリ内でテキスト文字起こしを確認できます";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -309,6 +311,8 @@
 				DEVELOPMENT_TEAM = 2D8X63JYVX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "音声が録音されます。音声記録は文字起こし後に破棄されます。";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "アプリ内でテキスト文字起こしを確認できます";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

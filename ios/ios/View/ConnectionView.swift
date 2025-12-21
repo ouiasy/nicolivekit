@@ -2,7 +2,7 @@ import SwiftUI
 import Connect
 
 struct ConnectionView: View {
-    @Environment(ClientState.self) var clientState
+    @Environment(ClientState.self) var clientState: ClientState
     @State private var host = ""
     @State private var port = ""
 
@@ -24,6 +24,7 @@ struct ConnectionView: View {
                         .stroke(Color.white.opacity(0.3), lineWidth: 1)
                 )
                 .font(.system(size: 40, weight: .light, design: .default))
+                .glassEffect()
             TextField("port", text: $port)
                 .padding(12)
                 .background(.ultraThinMaterial)
@@ -33,9 +34,10 @@ struct ConnectionView: View {
                         .stroke(Color.white.opacity(0.3), lineWidth: 1)
                 )
                 .font(.system(size: 40, weight: .light, design: .default))
+                .glassEffect()
             Spacer()
             Button("connect") {
-                clientState.createClient(host: host, port: port)
+                clientState.createClient()
             }
             .font(.title)
             .padding()
