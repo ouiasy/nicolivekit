@@ -19,10 +19,11 @@ class Transcriber {
         self.transcriber = SpeechTranscriber(
             locale: Locale(identifier: "ja-JP"),  //TODO: set locale
             transcriptionOptions: [],
-            reportingOptions: [.volatileResults],
-            attributeOptions: [.audioTimeRange]
+            reportingOptions: [],
+            attributeOptions: []
         )
-        self.analyzer = SpeechAnalyzer(modules: [self.transcriber])
+        let speechDetector = SpeechDetector()
+        self.analyzer = SpeechAnalyzer(modules: [speechDetector, self.transcriber, ])
 
         self.analyzerFormat = await SpeechAnalyzer.bestAvailableAudioFormat(
             compatibleWith: [transcriber])
@@ -38,7 +39,8 @@ class Transcriber {
                 for try await res in resultsStream {
                     if res.isFinal {
                         textTx.yield(res.text)
-                        print(res.text)
+                        let plainText = String(res.text.characters)
+                        print(plainText)
                     }
                 }
             } catch {

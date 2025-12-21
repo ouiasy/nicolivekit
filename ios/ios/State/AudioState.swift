@@ -1,9 +1,11 @@
 import AVFoundation
 import Speech
 
+@MainActor
 @Observable
 class AudioState {
     var isReady = false
+    var isRecording = false
     var errorMessage: String?
 
     private let pipeline = AppPipelines()
@@ -12,6 +14,29 @@ class AudioState {
 
     init() {}
 
+    func start()  throws {
+        guard !isRecording else { return }
+        
+        
+        Task {
+            do {
+                print("録音開始処理...")
+                // レコーダー起動
+                try self.recorder?.startRecording()
+
+                // Transcriber開始 (これはループして待機し続ける)
+                try await self.transcriber?.startTranscribe()
+                
+                isRecording = true
+
+            } catch {
+                // エラーが起きたら画面に表示できるようにする
+                self.errorMessage = "録音エラー: \(error.localizedDescription)"
+                self.isRecording = false  // フラグ戻す
+            }
+        }
+    }
+
     func setupSession() async {
         do {
             self.transcriber = await Transcriber(
@@ -19,7 +44,6 @@ class AudioState {
                 processedTextTx: pipeline.processedTextTx
             )
 
-            print("session開始1!!")
             guard let format = self.transcriber?.analyzerFormat else {
                 throw NSError(
                     domain: "AudioError",
@@ -28,17 +52,12 @@ class AudioState {
                 )
             }
 
-            print("session開始2!!")
-
-            print("session開始3!!")
             self.recorder = try await Recorder(
                 processedAudioTx: pipeline.processedAudioTx,
                 targetFormat: format
             )
 
             self.isReady = true
-            
-        
 
         } catch {
             print(error)
