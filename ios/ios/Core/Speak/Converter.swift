@@ -1,9 +1,9 @@
-import AVFoundation
+@preconcurrency import AVFoundation
 import Foundation
 
 /// BufferConverterは,bufferedされた音声データを SpeechAnalyzerに適合したformatに変換する
 class BufferConverter {
-    private var converter: AVAudioConverter?
+    private var converter: AVAudioConverter
 
     private let originalFormat: AVAudioFormat
     private let targetFormat: AVAudioFormat
@@ -30,10 +30,6 @@ class BufferConverter {
     )
         throws -> AVAudioPCMBuffer
     {
-        guard let converter = self.converter else {
-
-        }
-
         let sampleRateRatio =
             converter.outputFormat.sampleRate / converter.inputFormat.sampleRate
         let scaledInputFrameLength =

@@ -1,14 +1,17 @@
 import Foundation
 import AVFoundation
+import Speech
 
 class Recorder {
     private let audioEngine: AVAudioEngine
-    private let audioPipeline: AudioPipeline
     private let converter: BufferConverter
+    private let processedAudioTx: AsyncStream<AnalyzerInput>.Continuation
     
-    init(rawAudioTx: AsyncStream<AVAudioPCMBuffer>.Continuation, originalFormat: AVAudioFormat, targetFormat: AVAudioFormat) throws {
+    init(processedAudioTx: AsyncStream<AnalyzerInput>.Continuation,
+         targetFormat: AVAudioFormat) throws {
         self.audioEngine = AVAudioEngine()
-        self.audioPipeline = AudioPipeline()
+        self.processedAudioTx = processedAudioTx
+        let originalFormat = self.audioEngine.inputNode.inputFormat(forBus: 0)
         self.converter = try BufferConverter(originalFormat: originalFormat, targetFormat: targetFormat)
     }
     
@@ -20,12 +23,10 @@ class Recorder {
             format: audioEngine.inputNode.outputFormat(forBus: 0)
         ) {
             buffer, time in
-            // TODO: convert buffer and own value
             let convertedBuffer = try? self.converter.convertBuffer(buffer)
             if let convertedBuffer {
-                let sendableBuffer = SendableAudioBuffer(convertedBuffer)
-                self.audioPipeline.push(sendableBuffer)
-                return
+                let input = AnalyzerInput(buffer: convertedBuffer)
+                self.processedAudioTx.yield(input)
             }
         }
         
