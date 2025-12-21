@@ -3,12 +3,13 @@ import AVFoundation
 
 class Recorder {
     private let audioEngine: AVAudioEngine
-    private let rawAudioTx: AsyncStream<AVAudioPCMBuffer>.Continuation
+    private let audioPipeline: AudioPipeline
+    private let converter: BufferConverter
     
-    init(rawAudioTx: AsyncStream<AVAudioPCMBuffer>.Continuation) {
+    init(rawAudioTx: AsyncStream<AVAudioPCMBuffer>.Continuation, originalFormat: AVAudioFormat, targetFormat: AVAudioFormat) throws {
         self.audioEngine = AVAudioEngine()
-        self.rawAudioTx = rawAudioTx
-        
+        self.audioPipeline = AudioPipeline()
+        self.converter = try BufferConverter(originalFormat: originalFormat, targetFormat: targetFormat)
     }
     
     func startRecording() throws {
@@ -19,11 +20,13 @@ class Recorder {
             format: audioEngine.inputNode.outputFormat(forBus: 0)
         ) {
             buffer, time in
-            
-            Task {
-                self.rawAudioTx.yield(buffer)
+            // TODO: convert buffer and own value
+            let convertedBuffer = try? self.converter.convertBuffer(buffer)
+            if let convertedBuffer {
+                let sendableBuffer = SendableAudioBuffer(convertedBuffer)
+                self.audioPipeline.push(sendableBuffer)
+                return
             }
-            
         }
         
         audioEngine.prepare()

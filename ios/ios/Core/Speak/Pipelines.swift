@@ -1,20 +1,40 @@
-import Foundation
 import AVFoundation
+import Foundation
 
+actor TextPipeline {
 
-struct AppPipelines {
-    var rawAudioRx: AsyncStream<AVAudioPCMBuffer>
-    var rawAudioTx: AsyncStream<AVAudioPCMBuffer>.Continuation
-    
-    var processedAudioRx: AsyncStream<AVAudioPCMBuffer>
-    var processedAudioTx: AsyncStream<AVAudioPCMBuffer>.Continuation
-    
     var processedTextRx: AsyncStream<AttributedString>
     var processedTextTx: AsyncStream<AttributedString>.Continuation
-    
+
     init() {
-        (rawAudioRx, rawAudioTx) = AsyncStream<AVAudioPCMBuffer>.makeStream() // TODO: makeStreamの引数の確認
-        (processedAudioRx, processedAudioTx) = AsyncStream<AVAudioPCMBuffer>.makeStream()
-        (processedTextRx, processedTextTx) = AsyncStream<AttributedString>.makeStream()
+        // TODO: makeStreamの引数の確認
+
+        (processedTextRx, processedTextTx) = AsyncStream<AttributedString>
+            .makeStream()
+    }
+
+}
+
+
+// ラッパー構造体を定義
+struct SendableAudioBuffer: @unchecked Sendable {
+    let buffer: AVAudioPCMBuffer
+    
+    // 必要なら初期化子を追加
+    init(_ buffer: AVAudioPCMBuffer) {
+        self.buffer = buffer
+    }
+}
+
+actor AudioPipeline {
+    var processedAudioRx: AsyncStream<SendableAudioBuffer>
+    private nonisolated let processedAudioTx: AsyncStream<SendableAudioBuffer>.Continuation
+
+    init() {
+        (processedAudioRx, processedAudioTx) = AsyncStream<SendableAudioBuffer>.makeStream()
+    }
+
+    nonisolated func push(_ buffer: SendableAudioBuffer) {
+        processedAudioTx.yield(buffer)
     }
 }
