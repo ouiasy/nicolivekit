@@ -1,13 +1,16 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(ClientState.self) var clientState: ClientState
+    @Environment(AppConfig.self) var appConfig
+    
+    
     @State private var selectedTab: HomeTab = .record
     
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab("Record", systemImage: "waveform.circle.fill", value: .record) {
-                RecordView()
+                RecordView(appConf: appConfig, )
+                    
             }
             Tab("Comments", systemImage: "bubble.left.and.bubble.right.fill", value: .comments) {
                 Text("coming soon...")
@@ -17,7 +20,6 @@ struct ContentView: View {
             }
             Tab("Settings", systemImage: "gear", value: .settings, role: .search) {
                 SettingView()
-                    .environment(clientState)
             }
         }
     }
@@ -30,7 +32,7 @@ enum HomeTab: Hashable {
     case settings
 }
 
-#Preview {
-    ContentView()
-        .environment(ClientState())
-}
+//#Preview {
+//    ContentView()
+//        .environment(AppConfig())
+//}

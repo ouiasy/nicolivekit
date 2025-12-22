@@ -2,11 +2,11 @@ import SwiftUI
 
 @main
 struct AppRoot: App {
-    @State private var clientState = ClientState()
+    var appConfig = AppConfig.shared
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(clientState)
+                .environment(appConfig)
         }
     }
 }

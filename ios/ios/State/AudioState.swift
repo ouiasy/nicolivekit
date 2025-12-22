@@ -8,15 +8,14 @@ class AudioState {
     var isRecording = false
     var errorMessage: String?
 
-    private let pipeline = AppPipelines()
     private var transcriber: Transcriber?
     private var recorder: Recorder?
 
     init() {}
 
     func start()  throws {
-        guard !isRecording else { return }
         
+        guard !isRecording else { return }
         
         Task {
             do {
@@ -37,11 +36,16 @@ class AudioState {
         }
     }
 
-    func setupSession() async {
+    func setupSession(
+        processedAudioRx: AsyncStream<AnalyzerInput>,
+        processedAudioTx: AsyncStream<AnalyzerInput>.Continuation,
+        processedTextRx: AsyncStream<String>,
+        processedTextTx: AsyncStream<String>.Continuation
+    ) async {
         do {
             self.transcriber = await Transcriber(
-                processedAudioRx: pipeline.processedAudioRx,
-                processedTextTx: pipeline.processedTextTx
+                processedAudioRx: processedAudioRx,
+                processedTextTx: processedTextTx
             )
 
             guard let format = self.transcriber?.analyzerFormat else {
@@ -52,10 +56,12 @@ class AudioState {
                 )
             }
 
-            self.recorder = try await Recorder(
-                processedAudioTx: pipeline.processedAudioTx,
+            self.recorder = try Recorder(
+                processedAudioTx: processedAudioTx,
                 targetFormat: format
             )
+            
+
 
             self.isReady = true
 

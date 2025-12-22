@@ -1,19 +1,43 @@
-import Foundation
 import Connect
+import Foundation
 import SwiftUI
 
+@MainActor
 @Observable
 final class ClientState {
-    var settings = ClientSettings()
-    
     private(set) var connectVoiceClient: ConnectClient?
 
-    func createClient() {
-        self.connectVoiceClient = ConnectClient(host: settings.vHost, port: settings.vPort)
+    // TODO: set pipeline
+    private let processedTextRx: AsyncStream<String>
+
+    var responses: [String] = []
+
+    init(config: AppConfig, processedTextRx: AsyncStream<String>) {
+        self.connectVoiceClient = ConnectClient(
+            host: config.vHost,
+            port: config.vPort
+        )
+        self.processedTextRx = processedTextRx
         print("connectClient created")
     }
 
-    func send(text: String) async -> String? {
+    func startClient() async {
+        print("client started")
+        let textStream = processedTextRx
+        Task {
+            for await text in textStream {
+                print("sending: ", text)
+                let res = await send(text: text)
+                print("res is: ", res)
+                if let res {
+                    responses.append(res)
+                }
+            }
+        }
+
+    }
+
+    private func send(text: String) async -> String? {
         print("send called")
         guard let client = connectVoiceClient else {
             print("client is nil")
@@ -21,17 +45,7 @@ final class ClientState {
         }
         let response = await client.sendText(text)
         print("response received: \(response)")
-        
+
         return response.message?.message
     }
-}
-
-struct ClientSettings {
-    @AppStorage("voice.host") var vHost: String = "localhost"
-    @AppStorage("voice.port") var vPort: String = "8080"
-    
-    @AppStorage("tracking.host") var tHost: String = "localhost"
-    @AppStorage("tracking.port") var tPort: String = "8081"
-    
-    @AppStorage("liveID") var liveID: String = ""
 }

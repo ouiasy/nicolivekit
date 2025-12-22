@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingView: View {
-    @Environment(ClientState.self) var clientState: ClientState
+    @Environment(AppConfig.self) var appConfig: AppConfig
     @Environment(\.dismiss) var dismiss
     
     @State private var chatHost: String = ""
@@ -11,7 +11,6 @@ struct SettingView: View {
     @State private var liveID: String = ""
     
     var body: some View {
-        @Bindable var clientState = clientState
         NavigationStack {
             Form {
                 Section("Chat") {
@@ -26,20 +25,20 @@ struct SettingView: View {
                     TextField("LiveID", text: $liveID)
                 }
             }.onAppear {
-                chatHost = clientState.settings.vHost
-                chatPort = clientState.settings.vPort
-                trackingHost = clientState.settings.tHost
-                trackingPort = clientState.settings.tPort
-                liveID = clientState.settings.liveID
+                chatHost = appConfig.vHost
+                chatPort = appConfig.vPort
+                trackingHost = appConfig.tHost
+                trackingPort = appConfig.tPort
+                liveID = appConfig.liveID
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        clientState.settings.vHost = chatHost
-                        clientState.settings.vPort = chatPort
-                        clientState.settings.tHost = trackingHost
-                        clientState.settings.tPort = trackingPort
-                        clientState.settings.liveID = liveID
+                        appConfig.vHost = chatHost
+                        appConfig.vPort = chatPort
+                        appConfig.tHost = trackingHost
+                        appConfig.tPort = trackingPort
+                        appConfig.liveID = liveID
                         dismiss()
                     }
                 }
@@ -54,7 +53,7 @@ struct SettingView: View {
     }
 }
 
-#Preview {
-    SettingView()
-        .environment(ClientState())
-}
+//#Preview {
+//    SettingView()
+//        .environment(ClientState())
+//}

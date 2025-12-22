@@ -3,27 +3,29 @@ import Speech
 
 class Transcriber {
     private let processedAudioRx: AsyncStream<AnalyzerInput>
-    private let processedTextTx: AsyncStream<AttributedString>.Continuation
-    
+    private let processedTextTx: AsyncStream<String>.Continuation
+
     private let transcriber: SpeechTranscriber
     private let analyzer: SpeechAnalyzer
     let analyzerFormat: AVAudioFormat?
 
     init(
         processedAudioRx: AsyncStream<AnalyzerInput>,
-        processedTextTx: AsyncStream<AttributedString>.Continuation
+        processedTextTx: AsyncStream<String>.Continuation
     ) async {
         self.processedAudioRx = processedAudioRx
         self.processedTextTx = processedTextTx
 
         self.transcriber = SpeechTranscriber(
-            locale: Locale(identifier: "ja-JP"),  //TODO: set locale
+            locale: Locale(identifier: "ja_JP"),  //TODO: set locale
             transcriptionOptions: [],
             reportingOptions: [],
             attributeOptions: []
         )
         let speechDetector = SpeechDetector()
-        self.analyzer = SpeechAnalyzer(modules: [speechDetector, self.transcriber, ])
+        self.analyzer = SpeechAnalyzer(modules: [
+            speechDetector, self.transcriber,
+        ])
 
         self.analyzerFormat = await SpeechAnalyzer.bestAvailableAudioFormat(
             compatibleWith: [transcriber])
@@ -38,7 +40,7 @@ class Transcriber {
             do {
                 for try await res in resultsStream {
                     if res.isFinal {
-                        textTx.yield(res.text)
+                        textTx.yield(String(res.text.characters))
                         let plainText = String(res.text.characters)
                         print(plainText)
                     }
