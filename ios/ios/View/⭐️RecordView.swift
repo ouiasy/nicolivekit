@@ -20,13 +20,13 @@ struct RecordView: View {
     var body: some View {
         VStack {
             if let clientState {
-                ScrollView{
+                ScrollView {
                     ForEach(clientState.responses, id: \.description) { resp in
                         Text(resp)
                     }
                 }
             }
-            
+
             if audioState.isReady {
                 Button(audioState.isRecording ? "Stop" : "Start") {
                     if audioState.isRecording {
@@ -41,7 +41,7 @@ struct RecordView: View {
                         Task {
                             try? audioState.start()
                         }
-                        
+
                         print("ボタン処理終了")
                     }
                 }
@@ -53,7 +53,11 @@ struct RecordView: View {
         }
         .task {
             await audioState.setupSession(
-                processedAudioRx: pipeline.processedAudioRx, processedAudioTx: pipeline.processedAudioTx, processedTextRx: pipeline.processedTextRx, processedTextTx: pipeline.processedTextTx)
+                processedAudioRx: pipeline.processedAudioRx,
+                processedAudioTx: pipeline.processedAudioTx,
+                processedTextRx: pipeline.processedTextRx,
+                processedTextTx: pipeline.processedTextTx
+            )
         }
     }
 }

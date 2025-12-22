@@ -20,7 +20,6 @@ class AudioState {
         Task {
             do {
                 print("録音開始処理...")
-                // レコーダー起動
                 try self.recorder?.startRecording()
 
                 // Transcriber開始 (これはループして待機し続ける)
@@ -48,6 +47,7 @@ class AudioState {
                 processedTextTx: processedTextTx
             )
 
+            
             guard let format = self.transcriber?.analyzerFormat else {
                 throw NSError(
                     domain: "AudioError",

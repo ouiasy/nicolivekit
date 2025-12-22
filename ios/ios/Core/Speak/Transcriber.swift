@@ -19,7 +19,7 @@ class Transcriber {
         self.transcriber = SpeechTranscriber(
             locale: Locale(identifier: "ja_JP"),  //TODO: set locale
             transcriptionOptions: [],
-            reportingOptions: [],
+            reportingOptions: [.fastResults],
             attributeOptions: []
         )
         let speechDetector = SpeechDetector()
@@ -29,6 +29,14 @@ class Transcriber {
 
         self.analyzerFormat = await SpeechAnalyzer.bestAvailableAudioFormat(
             compatibleWith: [transcriber])
+
+        do {
+            try await self.analyzer.prepareToAnalyze(in: self.analyzerFormat)
+            print("Analyzer prepared successfully.")
+        } catch {
+            // 失敗してもstarupが遅くなるだけなので、ok
+            print("Failed to prepare analyzer: \(error)")
+        }
     }
 
     func startTranscribe() async throws {

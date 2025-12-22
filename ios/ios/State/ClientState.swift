@@ -26,9 +26,7 @@ final class ClientState {
         let textStream = processedTextRx
         Task {
             for await text in textStream {
-                print("sending: ", text)
                 let res = await send(text: text)
-                print("res is: ", res)
                 if let res {
                     responses.append(res)
                 }
@@ -44,7 +42,6 @@ final class ClientState {
             return "Client not connected"
         }
         let response = await client.sendText(text)
-        print("response received: \(response)")
 
         return response.message?.message
     }
