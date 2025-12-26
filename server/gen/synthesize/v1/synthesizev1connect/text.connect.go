@@ -82,8 +82,8 @@ type SpeechServiceHandler interface {
 	Synthesize(context.Context, *v1.SynthesizeRequest) (*v1.SynthesizeResponse, error)
 }
 
-// NewSpeechServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
+// NewSpeechServiceHandler builds an HTTP api from the service implementation. It returns the
+// path on which to mount the api and the api itself.
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
