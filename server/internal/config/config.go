@@ -9,8 +9,8 @@ import (
 )
 
 type GlobalConfig struct {
-	Api       ApiConf       `koanf:"api"`
-	VoicePeak VoicePeakConf `koanf:"voicepeak"`
+	Api       *ApiConf       `koanf:"api"`
+	VoicePeak *VoicePeakConf `koanf:"voicepeak"`
 }
 
 type ApiConf struct {
@@ -20,6 +20,7 @@ type ApiConf struct {
 
 type VoicePeakConf struct {
 	BinPath string `koanf:"bin_path"`
+	WavPath string `koanf:"wav_path"`
 }
 
 func Load() (*GlobalConfig, error) {

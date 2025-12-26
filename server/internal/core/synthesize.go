@@ -1,13 +1,19 @@
 package core
 
+import "context"
+
+type Player interface {
+	Play(path string) error
+}
+
 type VoiceSynthesizer interface {
-	Synthesize()
-	Play() error
+	StartSynthesize(ctx context.Context)
 }
 
 type SynthesizeParams struct {
 	Text     string
-	Pitch    uint
+	Speed    uint
+	Pitch    int
 	Emotions SentimentParams
 }
 
@@ -21,9 +27,10 @@ type SentimentParams struct {
 
 type SynthesizeOption func(*SynthesizeParams)
 
-func NewSynthesizeParams(text string, opts ...SynthesizeOption) *SynthesizeParams {
+func NewSynthesizeParams(req *SynthesisReq, opts ...SynthesizeOption) *SynthesizeParams {
 	p := &SynthesizeParams{
-		Text:     text,
+		Text:     req.Text,
+		Speed:    120,
 		Pitch:    100,
 		Emotions: SentimentParams{},
 	}
@@ -42,7 +49,7 @@ func WithEmotions(emotions SentimentParams) SynthesizeOption {
 
 func WithPitch(p uint) SynthesizeOption {
 	return func(args *SynthesizeParams) {
-		args.Pitch = p
+		args.Speed = p
 	}
 }
 

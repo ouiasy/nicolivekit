@@ -2,17 +2,17 @@ package service
 
 import "github.com/ouiasy/nicolivekit/server/internal/core"
 
-type SpeechService struct {
+type EnqueueService struct {
 	e core.SynthesisEnqueuer
 }
 
-func NewSpeechService(enqueuer core.SynthesisEnqueuer) *SpeechService {
-	return &SpeechService{
+func NewEnqueueService(enqueuer core.SynthesisEnqueuer) *EnqueueService {
+	return &EnqueueService{
 		enqueuer,
 	}
 }
 
-func (s *SpeechService) Send(msg string) (string, error) {
+func (s *EnqueueService) Send(msg string) (string, error) {
 	msgReq := core.NewSynthesisReq(msg)
 	return s.e.Enqueue(msgReq)
 }

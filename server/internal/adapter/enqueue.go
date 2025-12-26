@@ -1,4 +1,4 @@
-package client
+package adapter
 
 import "github.com/ouiasy/nicolivekit/server/internal/core"
 
@@ -6,9 +6,9 @@ type SynthesisReqQueue struct {
 	tx chan<- *core.SynthesisReq
 }
 
-func NewSynthesisReqQueue() *SynthesisReqQueue {
+func NewSynthesisReqQueue(tx chan<- *core.SynthesisReq) *SynthesisReqQueue {
 	return &SynthesisReqQueue{
-		tx: make(chan *core.SynthesisReq),
+		tx,
 	}
 }
 

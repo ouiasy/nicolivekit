@@ -2,37 +2,22 @@ package worker
 
 import (
 	"context"
+	"log/slog"
 
-	"github.com/ouiasy/nicolivekit/server/internal/api"
-	"github.com/ouiasy/nicolivekit/server/internal/core"
+	"github.com/ouiasy/nicolivekit/server/internal/service"
 )
 
 type SynthesisWorker struct {
-	rx <-chan *core.SynthesisReq
+	ss *service.SynthesisService
 }
 
-func NewSynthesisWorker(stream <-chan *core.SynthesisReq) *SynthesisWorker {
+func NewSynthesisWorker(ss *service.SynthesisService) *SynthesisWorker {
 	return &SynthesisWorker{
-		rx: stream,
+		ss,
 	}
 }
 
-func (worker *SynthesisWorker) Run(ctx context.Context, state api.AppState) {
-	state.Logger.Info("SynthesisWorker started waiting for tasks...")
-	for {
-		select {
-		case <-ctx.Done():
-			state.Logger.Info("SynthesisWorker stopping...")
-			return
-		case req, ok := <-worker.rx:
-			if !ok {
-				continue
-			}
-			worker.process(req)
-		}
-	}
-}
-
-func (worker *SynthesisWorker) process(req *core.SynthesisReq) {
-
+func (worker *SynthesisWorker) Run(ctx context.Context, log *slog.Logger) {
+	slog.Info("SynthesisWorker started waiting for tasks...")
+	worker.ss.RunSynthesizer(ctx)
 }
