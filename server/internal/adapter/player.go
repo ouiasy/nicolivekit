@@ -13,7 +13,7 @@ type Player struct {
 }
 
 func (p *Player) Play(path string) error {
-	return exec.Command("afplay", path).Run()
+	return exec.Command(p.cmdName, path).Run()
 }
 
 func NewDefaultPlayer() (core.Player, error) {

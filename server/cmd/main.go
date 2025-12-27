@@ -10,7 +10,7 @@ import (
 func main() {
 	ctx := context.Background()
 	if err := app.Run(ctx); err != nil {
-		log.Fatal("failed to run server")
+		log.Fatal(err)
 	}
 
 }

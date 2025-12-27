@@ -2,9 +2,13 @@ package app
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log/slog"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"connectrpc.com/connect"
 	"connectrpc.com/validate"
@@ -21,22 +25,24 @@ import (
 func Run(ctx context.Context) error {
 	cfg, err := config.Load()
 	if err != nil {
-		return fmt.Errorf("error loading config yaml file")
+		slog.Error("error loading config yaml file")
+		return err
 	}
-
-	logger := slog.Default()
 
 	ch := make(chan *core.SynthesisReq, 10)
 
-	// synthesizer
 	defaultPlayer, err := adapter.NewDefaultPlayer()
 	if err != nil {
+		slog.Error("error preparing player", "error", err)
 		return err
 	}
 	vc := adapter.NewVoicepeakClient(ch, defaultPlayer, cfg.VoicePeak)
 	ss := service.NewSynthesisService(vc)
 	synthesisWorker := worker.NewSynthesisWorker(ss)
-	go synthesisWorker.Run(ctx, logger)
+
+	workerCtx, workerCancel := context.WithCancel(ctx)
+	defer workerCancel()
+	go synthesisWorker.Run(workerCtx)
 
 	// enqueuer
 	sq := adapter.NewSynthesisReqQueue(ch)
@@ -60,9 +66,20 @@ func Run(ctx context.Context) error {
 		Handler:   r,
 		Protocols: p,
 	}
-	// todo
-	if err := s.ListenAndServe(); err != nil {
-		return err
+	go func() {
+		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("error while executing server job", "error", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		os.Exit(1)
 	}
 
 	return nil
