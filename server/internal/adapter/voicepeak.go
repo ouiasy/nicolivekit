@@ -3,10 +3,14 @@ package adapter
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/ouiasy/nicolivekit/server/internal/config"
 	"github.com/ouiasy/nicolivekit/server/internal/core"
 )
@@ -22,6 +26,9 @@ func NewVoicepeakClient(
 	player core.Player,
 	conf *config.VoicePeakConf,
 ) *VoicepeakClient {
+	if err := os.MkdirAll(conf.WavFolder, 0700); err != nil {
+		log.Fatalf("failed to create tmp directory: %v", err)
+	}
 	return &VoicepeakClient{
 		rx,
 		player,
@@ -40,21 +47,26 @@ func (vc *VoicepeakClient) StartSynthesize(ctx context.Context) {
 				return
 			}
 			params := core.NewSynthesizeParams(msg)
-			if err := execVoicepeakCmd(ctx, params, vc.conf); err != nil {
+			filePath := filepath.Join(vc.conf.WavFolder, uuid.NewString()+".wav")
+			if err := execVoicepeakCmd(ctx, params, vc.conf.BinPath, filePath); err != nil {
 				slog.Error("error creating wav file: ", err)
 				continue
 			}
-			if err := vc.player.Play(vc.conf.WavPath); err != nil {
-				slog.Error("error while playing sound: ", err)
-			}
+			go func() {
+				err := vc.player.Play(filePath)
+				if err != nil {
+					slog.Error("error while playing sound: ", err)
+				}
+			}()
 		}
 	}
 }
 
-func execVoicepeakCmd(ctx context.Context, params *core.SynthesizeParams, conf *config.VoicePeakConf) error {
-	args := processVoicepeakArgs(params, conf.WavPath)
+func execVoicepeakCmd(ctx context.Context, params *core.SynthesizeParams, binPath string, outputFilePath string) error {
+	args := processVoicepeakArgs(params, outputFilePath)
+	fmt.Println(args)
 
-	err := exec.CommandContext(ctx, conf.BinPath, args...).Run()
+	err := exec.CommandContext(ctx, binPath, args...).Run()
 	if err != nil {
 		return fmt.Errorf("error executing voicepeak command: %w", err)
 	}
@@ -76,7 +88,7 @@ func processVoicepeakArgs(params *core.SynthesizeParams, wavOutputPath string) [
 
 	emotionArgs := strings.Join(emotions, ",")
 
-	args = append(args, "--say", params.Text, "--out", wavOutputPath)
+	args = append(args, "--say", "..."+params.Text, "--out", wavOutputPath)
 	args = append(args, "--emotion", emotionArgs)
 
 	return args

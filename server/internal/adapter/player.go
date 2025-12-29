@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"runtime"
 
@@ -13,6 +14,7 @@ type Player struct {
 }
 
 func (p *Player) Play(path string) error {
+	defer os.Remove(path)
 	return exec.Command(p.cmdName, path).Run()
 }
 

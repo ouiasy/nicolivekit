@@ -19,8 +19,8 @@ type ApiConf struct {
 }
 
 type VoicePeakConf struct {
-	BinPath string `koanf:"bin_path"`
-	WavPath string `koanf:"wav_path"`
+	BinPath   string `koanf:"bin_path"`
+	WavFolder string `koanf:"wav_folder"`
 }
 
 func Load() (*GlobalConfig, error) {

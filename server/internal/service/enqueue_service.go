@@ -1,6 +1,8 @@
 package service
 
-import "github.com/ouiasy/nicolivekit/server/internal/core"
+import (
+	"github.com/ouiasy/nicolivekit/server/internal/core"
+)
 
 type EnqueueService struct {
 	e core.SynthesisEnqueuer

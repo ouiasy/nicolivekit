@@ -67,6 +67,7 @@ func Run(ctx context.Context) error {
 		Protocols: p,
 	}
 	go func() {
+		slog.Info("listening...", "address", cfg.Api.Host+":"+cfg.Api.Port)
 		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			slog.Error("error while executing server job", "error", err)
 		}
